@@ -1,2 +1,2 @@
 ﻿# スイカゲームもどき
-https://pwearth.github.io/Unity/MergePuzzle/WebGL/MergePuzzle/index.html
+https://pwearth.github.io/Unity/MergePuzzle/WebGL/index.html
