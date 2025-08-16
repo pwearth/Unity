@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,6 +10,8 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 {
 	//アイテムのプレハブ
 	[SerializeField] List<BubbleController> prefabBubbles;
+
+	[SerializeField] Image imageNextBubble;
 
 	// UI
 	[SerializeField] TextMeshProUGUI textScore;
@@ -22,10 +25,17 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 	int score;
 	// 現在のアイテム
 	BubbleController currentBubble;
+	BubbleController nextBubble;
+
 	// 生成位置
 	const float SpawnItemY = 3.5f;
 	// Audio再生位置
 	AudioSource audioSource;
+
+	public static class Global
+	{
+		public static int nextColorType;
+	}
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	void Start()
@@ -70,10 +80,13 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		{
 			// 重力をセットしてドロップ
 			currentBubble.GetComponent<Rigidbody2D>().gravityScale = 1;
-			// 主事アイテムリセット
+
+			// 所持アイテムリセット
 			currentBubble = null;
+
 			// 次のアイテム
 			StartCoroutine(SpawnCurrentItem());
+
 			// SE再生
 			audioSource.PlayOneShot(seDrop);
 		}
@@ -106,17 +119,24 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 	IEnumerator SpawnCurrentItem()
 	{
 		// 指定された秒数を待つ
-		yield return new WaitForSeconds(1.0f);
+		yield return new WaitForSeconds(0.7f);
+
 		// 生成されたアイテムを保持する
-		currentBubble = SpawnItem(new Vector2(0, SpawnItemY));
+		currentBubble = SpawnItem(new Vector2(0, SpawnItemY),Global.nextColorType);
+		nextBubble = SpawnItem(new Vector2(-5f, -5f));
+
 		// 落ちないように重力を0にする
 		currentBubble.GetComponent<Rigidbody2D>().gravityScale = 0;
+		nextBubble.GetComponent<Rigidbody2D>().gravityScale = 0;
+		Global.nextColorType = nextBubble.ColorType;
+
+		imageNextBubble.sprite = nextBubble.GetComponent<SpriteRenderer>().sprite;
+		Destroy(nextBubble.gameObject);
 	}
 
 	// アイテムを合体させる
 	public void Merge(BubbleController bubbleA, BubbleController bubbleB)
 	{
-
 		//　操作中のアイテムとぶつかったらゲームオーバー
 		if (currentBubble == bubbleA || currentBubble == bubbleB)
 		{
@@ -124,7 +144,6 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 			GAMEOVER();
 			return;
 		}
-
 
 		// マージ済みの場合は関数を終了
 		if (bubbleA.IsMerged || bubbleB.IsMerged) return;
