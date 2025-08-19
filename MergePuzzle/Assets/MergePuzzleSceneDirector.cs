@@ -99,14 +99,13 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		int index = Random.Range(0, prefabBubbles.Count / 2);
 
 		// 色の指定があれば上書き
-		if (0 < colorType)
+		if (0 <= colorType)
 		{
 			index = colorType;
 		}
 
 		// 生成
-		BubbleController bubble =
-			Instantiate(prefabBubbles[index], position, Quaternion.identity);
+		BubbleController bubble = Instantiate(prefabBubbles[index], position, Quaternion.identity);
 
 		// 必須データセット
 		bubble.SceneDirector = this;
