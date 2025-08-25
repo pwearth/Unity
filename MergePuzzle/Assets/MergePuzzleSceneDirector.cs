@@ -15,6 +15,9 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 
 	// UI
 	[SerializeField] TextMeshProUGUI textScore;
+
+	[SerializeField] Text textMaxScore;
+
 	[SerializeField] Text textScoreResult;
 	[SerializeField] GameObject panelResult;
 	// Audio
@@ -23,6 +26,9 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 
 	// スコア
 	int score;
+
+	public static int MaxScore;
+
 	// 現在のアイテム
 	BubbleController currentBubble;
 	BubbleController nextBubble;
@@ -42,6 +48,12 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 	{
 		// サウンド再生用
 		audioSource = GetComponent<AudioSource>();
+
+		// MaxScoreを保存から読み込む
+		MaxScore = PlayerPrefs.GetInt("MaxScore", 0);
+
+		// ここでtextMaxScore.textをセット
+		textMaxScore.text = "最高得点：" + MaxScore.ToString();
 
 		// リザルト画面を非表示
 		panelResult.SetActive(false);
@@ -73,10 +85,24 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		worldPoint.x = Mathf.Clamp(worldPoint.x, leftLimit, rightLimit);
 
 		Vector2 bubblePosition = new Vector2(worldPoint.x, SpawnItemY);
+
+		/*
+		//左右矢印キーを押すとバブルを移動
+		if (Input.GetKey(KeyCode.LeftArrow))
+		{
+			bubblePosition.x -= 0.1f;
+		}
+		else if (Input.GetKey(KeyCode.RightArrow))
+		{
+			bubblePosition.x += 0.1f;
+		}
+		*/
+
+		// バブルの位置を更新
 		currentBubble.transform.position = bubblePosition;
 
-		// タッチ処理
-		if (Input.GetMouseButtonUp(0))
+		// タッチ処理 もしくはスペースキー
+		if (Input.GetMouseButtonUp(0) || Input.GetKeyUp(KeyCode.Space))
 		{
 			// 重力をセットしてドロップ
 			currentBubble.GetComponent<Rigidbody2D>().gravityScale = 1;
@@ -121,7 +147,7 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		yield return new WaitForSeconds(0.7f);
 
 		// 生成されたアイテムを保持する
-		currentBubble = SpawnItem(new Vector2(0, SpawnItemY),Global.nextColorType);
+		currentBubble = SpawnItem(new Vector2(0, SpawnItemY), Global.nextColorType);
 		nextBubble = SpawnItem(new Vector2(-5f, -5f));
 
 		// 落ちないように重力を0にする
@@ -136,11 +162,13 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 	// アイテムを合体させる
 	public void Merge(BubbleController bubbleA, BubbleController bubbleB)
 	{
+
 		//　操作中のアイテムとぶつかったらゲームオーバー
 		if (currentBubble == bubbleA || currentBubble == bubbleB)
 		{
 			// ゲームオーバー関数の実行
 			GAMEOVER();
+			textMaxScore.text = "最高得点：" + MaxScore.ToString();
 			return;
 		}
 
@@ -179,6 +207,16 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 
 		// 点数の表示更新
 		textScore.text = score.ToString();
+		if (score > MaxScore)
+		{
+			MaxScore = score;
+			textMaxScore.text = "最高得点：" + MaxScore.ToString();
+
+			// 新しいハイスコアを保存
+			PlayerPrefs.SetInt("MaxScore", MaxScore);
+			PlayerPrefs.Save();
+		}
+
 		textScoreResult.text = score.ToString() + " 点";
 
 		// SE再生
@@ -205,4 +243,12 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		panelResult.SetActive(true);
 		return;
 	}
+
+	public void InitButton()
+	{
+		// ハイスコアを削除 とゲームスタート
+		PlayerPrefs.DeleteKey("MaxScore");
+		SceneManager.LoadScene("GameStartScene");
+	}
+
 }
