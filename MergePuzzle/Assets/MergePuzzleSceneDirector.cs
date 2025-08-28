@@ -53,7 +53,7 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		MaxScore = PlayerPrefs.GetInt("MaxScore", 0);
 
 		// ここでtextMaxScore.textをセット
-		textMaxScore.text = "最高得点：" + MaxScore.ToString();
+		textMaxScore.text = "さいこう得点：" + MaxScore.ToString();
 
 		// リザルト画面を非表示
 		panelResult.SetActive(false);
@@ -168,7 +168,7 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		{
 			// ゲームオーバー関数の実行
 			GAMEOVER();
-			textMaxScore.text = "最高得点：" + MaxScore.ToString();
+			textMaxScore.text = "さいこう得点：" + MaxScore.ToString();
 			return;
 		}
 
@@ -210,7 +210,7 @@ public class MergePuzzleSceneDirector : MonoBehaviour
 		if (score > MaxScore)
 		{
 			MaxScore = score;
-			textMaxScore.text = "最高得点：" + MaxScore.ToString();
+			textMaxScore.text = "さいこう得点：" + MaxScore.ToString();
 
 			// 新しいハイスコアを保存
 			PlayerPrefs.SetInt("MaxScore", MaxScore);
