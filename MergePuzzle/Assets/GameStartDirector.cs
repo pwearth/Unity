@@ -32,7 +32,6 @@ public class GameStartDirector : MonoBehaviour
 
 	public void StartButton()
 	{
-		// Load the game scene
 		SceneManager.LoadScene("MergePuzzleScene");
 	}
 
